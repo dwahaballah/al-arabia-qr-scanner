@@ -120,17 +120,31 @@ button:disabled {
   font-size: 53px;
 }
 
+
 #reader {
   width: 100%;
+  height: auto;
   overflow: hidden;
   border-radius: 17px;
-  background: #101b2a;
-  margin: 22px 0;
+  background: transparent;
+  margin: 18px 0;
+  line-height: 0;
 }
 
 #reader video {
+  display: block !important;
   width: 100% !important;
-  object-fit: cover;
+  height: auto !important;
+  object-fit: contain !important;
+  border-radius: 17px;
+}
+
+#reader__scan_region {
+  min-height: 0 !important;
+}
+
+#reader__scan_region img {
+  display: none !important;
 }
 
 #reader__dashboard {
