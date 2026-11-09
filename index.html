@@ -1,0 +1,647 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10243a">
+
+<title>AL-Arabia Event Check-in</title>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<style>
+:root {
+  --navy: #10243a;
+  --green: #159b65;
+  --red: #dc3545;
+  --text: #14263b;
+  --muted: #6b7b90;
+  --background: #f2f5f9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Arial, sans-serif;
+  background: var(--background);
+  color: var(--text);
+}
+
+header {
+  background: var(--navy);
+  color: white;
+  text-align: center;
+  padding: 25px 16px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: 1px;
+}
+
+header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+main {
+  max-width: 530px;
+  margin: 0 auto;
+  padding: 28px 16px;
+}
+
+.card {
+  background: white;
+  border-radius: 23px;
+  padding: 27px 20px;
+  box-shadow: 0 12px 40px rgba(16,36,58,0.08);
+  text-align: center;
+}
+
+h2 {
+  font-size: 25px;
+  margin: 0 0 12px;
+}
+
+p {
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+button {
+  width: 100%;
+  border: 0;
+  border-radius: 15px;
+  padding: 18px 16px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.primary {
+  background: var(--navy);
+  color: white;
+}
+
+.secondary {
+  background: #eaf0f5;
+  color: var(--navy);
+  margin-top: 12px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.icon {
+  width: 100px;
+  height: 100px;
+  margin: 15px auto 25px;
+  border-radius: 28px;
+  background: #edf3f8;
+  display: grid;
+  place-items: center;
+  font-size: 53px;
+}
+
+#reader {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 17px;
+  background: #101b2a;
+  margin: 22px 0;
+}
+
+#reader video {
+  width: 100% !important;
+  object-fit: cover;
+}
+
+#reader__dashboard {
+  color: white;
+  padding: 12px;
+}
+
+#reader__dashboard button,
+#reader__dashboard select {
+  max-width: 100%;
+  font-size: 14px;
+  padding: 8px;
+}
+
+.message {
+  margin: 16px 0;
+  padding: 14px;
+  border-radius: 12px;
+  background: #fff0f1;
+  color: #a82331;
+  line-height: 1.6;
+}
+
+.result {
+  padding: 30px 16px;
+  border-radius: 20px;
+  margin-bottom: 23px;
+}
+
+.result.success {
+  background: #e8f8ef;
+  border: 2px solid #b5e7c9;
+  color: #08764c;
+}
+
+.result.used,
+.result.invalid {
+  background: #fff0f1;
+  border: 2px solid #facbd0;
+  color: #b42332;
+}
+
+.result.error {
+  background: #fff6df;
+  border: 2px solid #f0d9a2;
+  color: #93610d;
+}
+
+.result-icon {
+  font-size: 65px;
+  font-weight: 800;
+  margin-bottom: 18px;
+}
+
+.result h2 {
+  font-size: 23px;
+  overflow-wrap: anywhere;
+}
+
+.result p {
+  color: inherit;
+  opacity: 0.85;
+}
+
+.guest {
+  font-size: 20px;
+  font-weight: 800;
+  margin-top: 16px;
+  overflow-wrap: anywhere;
+}
+
+.time {
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  margin: 30px auto;
+  border: 5px solid #e4edf4;
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+footer {
+  text-align: center;
+  font-size: 12px;
+  color: #94a3b8;
+  padding: 30px 12px;
+}
+
+@media (max-width: 420px) {
+  main { padding: 20px 12px; }
+  .card { padding: 23px 15px; }
+  h2 { font-size: 22px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>AL-ARABIA</h1>
+  <p>EVENT CHECK-IN SYSTEM</p>
+</header>
+
+<main>
+
+<section id="home" class="card">
+  <div class="icon">▦</div>
+  <h2>Welcome to AL-Arabia</h2>
+  <p>
+    Scan your guest's invitation QR code
+    to complete check-in.
+  </p>
+  <button id="startBtn" class="primary">
+    📷 Scan QR Code
+  </button>
+</section>
+
+<section id="scanner" class="card hidden">
+  <h2>Scan Invitation</h2>
+  <p>Point the rear camera at the QR code.</p>
+
+  <div id="reader"></div>
+
+  <div id="cameraError"
+       class="message hidden"
+       role="alert"></div>
+
+  <button id="retryBtn"
+          class="primary hidden">
+    Retry Camera
+  </button>
+
+  <button id="cancelBtn" class="secondary">
+    Cancel
+  </button>
+</section>
+
+<section id="processing" class="card hidden">
+  <div class="spinner"></div>
+  <h2>Checking Invitation</h2>
+  <p>Validating QR code with Google Sheets...</p>
+</section>
+
+<section id="result" class="card hidden">
+  <div id="resultCard" class="result">
+    <div id="resultIcon" class="result-icon"></div>
+    <h2 id="resultTitle"></h2>
+    <div id="guestName" class="guest"></div>
+    <div id="checkinTime" class="time"></div>
+    <p id="resultDescription"></p>
+  </div>
+
+  <button id="nextBtn" class="primary">
+    📷 Scan Next Guest
+  </button>
+</section>
+
+<footer>
+  AL-Arabia Event Check-in
+</footer>
+
+</main>
+
+<script>
+'use strict';
+
+const API_URL =
+  'https://script.google.com/macros/s/AKfycbwpbhgEgrHcPnd-k5jKugd5m-NQ3Agag4dnbFcIaw4GmQZRfTfeADcRDYn_Fp5brHBNXw/exec';
+
+const state = {
+  scanner: null,
+  screen: 'home',
+  locked: false,
+  session: 0,
+  cameraQueue: Promise.resolve(),
+  requests: new Map()
+};
+
+const $ = id => document.getElementById(id);
+
+function showScreen(name) {
+  ['home', 'scanner', 'processing', 'result'].forEach(id => {
+    $(id).classList.toggle('hidden', id !== name);
+  });
+  state.screen = name;
+  window.scrollTo(0, 0);
+}
+
+function cameraError(message) {
+  $('cameraError').textContent = message;
+  $('cameraError').classList.remove('hidden');
+  $('retryBtn').classList.remove('hidden');
+}
+
+function clearError() {
+  $('cameraError').classList.add('hidden');
+  $('retryBtn').classList.add('hidden');
+  $('cameraError').textContent = '';
+}
+
+function queueCamera(operation) {
+  const next = state.cameraQueue
+    .catch(() => {})
+    .then(operation);
+
+  state.cameraQueue = next.catch(console.error);
+  return next;
+}
+
+async function stopCamera() {
+  const scanner = state.scanner;
+  if (!scanner) return;
+
+  state.scanner = null;
+
+  try {
+    if (scanner.isScanning) {
+      await scanner.stop();
+    }
+  } catch (error) {
+    console.warn('Camera stop:', error);
+  }
+
+  try {
+    scanner.clear();
+  } catch (error) {
+    console.warn('Scanner clear:', error);
+  }
+}
+
+async function startCamera() {
+  const session = ++state.session;
+  state.locked = false;
+
+  showScreen('scanner');
+  clearError();
+
+  await queueCamera(async () => {
+    await stopCamera();
+
+    if (
+      session !== state.session ||
+      state.screen !== 'scanner'
+    ) return;
+
+    if (typeof Html5Qrcode === 'undefined') {
+      cameraError(
+        'QR scanner library failed to load. Check your internet connection.'
+      );
+      return;
+    }
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      cameraError(
+        'Camera API is unavailable. Open this HTTPS website directly in Safari or Chrome.'
+      );
+      return;
+    }
+
+    try {
+      const scanner = new Html5Qrcode('reader', {
+        verbose: false,
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.QR_CODE
+        ]
+      });
+
+      state.scanner = scanner;
+
+      await scanner.start(
+        { facingMode: 'environment' },
+        {
+          fps: 10,
+          qrbox: (width, height) => {
+            const size = Math.max(
+              100,
+              Math.floor(Math.min(width, height) * 0.75)
+            );
+
+            return { width: size, height: size };
+          }
+        },
+        decodedText => onDecoded(decodedText, session),
+        () => {}
+      );
+
+      if (
+        session !== state.session ||
+        state.screen !== 'scanner'
+      ) {
+        await stopCamera();
+      }
+
+    } catch (error) {
+      console.error('Camera error:', error);
+      await stopCamera();
+
+      if (
+        session === state.session &&
+        state.screen === 'scanner'
+      ) {
+        cameraError(
+          'Unable to open camera. Allow camera access in browser settings and retry.'
+        );
+      }
+    }
+  });
+}
+
+function cancelCamera() {
+  state.session++;
+  state.locked = true;
+  showScreen('home');
+  queueCamera(stopCamera);
+}
+
+function onDecoded(decodedText, session) {
+  if (
+    session !== state.session ||
+    state.locked ||
+    state.screen !== 'scanner'
+  ) return;
+
+  state.locked = true;
+  showScreen('processing');
+
+  queueCamera(stopCamera);
+
+  checkIn(decodedText, session)
+    .then(data => {
+      if (session === state.session) {
+        showResult(data);
+      }
+    })
+    .catch(error => {
+      console.error('Check-in error:', error);
+
+      if (session === state.session) {
+        showResult({
+          type: 'error',
+          message:
+            'Could not confirm check-in. Ask event staff to verify the guest status before retrying.'
+        });
+      }
+    });
+}
+
+/**
+ * JSONP callback invoked by Apps Script.
+ */
+window.ALArabia = {
+  receive(payload) {
+    if (!payload || typeof payload !== 'object') {
+      return;
+    }
+
+    const request = state.requests.get(payload.requestId);
+
+    if (!request) return;
+
+    request.resolve(payload.result);
+  }
+};
+
+/**
+ * Cross-origin request without fetch/CORS.
+ *
+ * Apps Script ContentService returns JavaScript
+ * invoking ALArabia.receive(...).
+ *
+ * The response is executable script, so the Apps
+ * Script deployment must be treated as trusted.
+ */
+function checkIn(qr, session) {
+  return new Promise((resolve, reject) => {
+    const requestId =
+      'req_' +
+      Date.now().toString(36) +
+      '_' +
+      Math.random().toString(36).slice(2);
+
+    const script = document.createElement('script');
+
+    const url = new URL(API_URL);
+    url.searchParams.set('callback', 'ALArabia.receive');
+    url.searchParams.set('requestId', requestId);
+    url.searchParams.set('qr', String(qr).trim());
+    url.searchParams.set('_', String(Date.now()));
+
+    let completed = false;
+
+    function cleanup() {
+      clearTimeout(timeout);
+      state.requests.delete(requestId);
+      script.remove();
+    }
+
+    function finish(error, result) {
+      if (completed) return;
+      completed = true;
+      cleanup();
+
+      if (error) reject(error);
+      else resolve(result);
+    }
+
+    const timeout = setTimeout(() => {
+      finish(new Error(
+        'Check-in response timeout. Server status is unknown.'
+      ));
+    }, 45000);
+
+    state.requests.set(requestId, {
+      resolve(result) {
+        if (session !== state.session) {
+          finish(new Error('Scan session expired'));
+          return;
+        }
+
+        finish(null, result);
+      }
+    });
+
+    script.onerror = () => {
+      finish(new Error(
+        'Unable to load Apps Script response'
+      ));
+    };
+
+    script.src = url.toString();
+    document.head.appendChild(script);
+  });
+}
+
+function showResult(data) {
+  const result = data && typeof data === 'object'
+    ? data
+    : {
+        type: 'error',
+        message: 'Invalid server response'
+      };
+
+  const types = ['success', 'used', 'invalid', 'error'];
+  const type = types.includes(result.type)
+    ? result.type
+    : 'error';
+
+  $('resultCard').className = 'result ' + type;
+
+  $('resultIcon').textContent =
+    type === 'success' ? '✓' :
+    type === 'error' ? '!' : '✕';
+
+  const defaults = {
+    success: '✅ Welcome to AL-Arabia Event',
+    used: '❌ This QR Code has already been used.',
+    invalid: '❌ Invalid QR Code',
+    error: 'Check-in could not be completed.'
+  };
+
+  $('resultTitle').textContent =
+    result.message || defaults[type];
+
+  $('guestName').textContent =
+    result.guestName || '';
+
+  $('checkinTime').textContent =
+    type === 'success' && result.checkInTime
+      ? 'Check-in time: ' + result.checkInTime
+      : '';
+
+  const descriptions = {
+    success: 'Guest successfully checked in.',
+    used: 'This invitation cannot be used again.',
+    invalid: 'This QR code is not registered for this event.',
+    error: 'Please verify the guest status in Google Sheets.'
+  };
+
+  $('resultDescription').textContent =
+    descriptions[type];
+
+  showScreen('result');
+}
+
+$('startBtn').addEventListener('click', startCamera);
+$('retryBtn').addEventListener('click', startCamera);
+$('cancelBtn').addEventListener('click', cancelCamera);
+$('nextBtn').addEventListener('click', startCamera);
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && state.screen === 'scanner') {
+    cancelCamera();
+  }
+});
+
+window.addEventListener('pagehide', () => {
+  state.session++;
+  state.locked = true;
+  queueCamera(stopCamera);
+});
+
+</script>
+
+</body>
+</html>
